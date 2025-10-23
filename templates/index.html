@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Healthify Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <img src="{{ url_for('static', filename='images/ria-avatar.png') }}" alt="Ria Avatar" class="top-avatar">
+    <h1>Chat with Healthify Bot</h1>
+    <div id="chatbox"></div>
+    <div class="input-container">
+      <label for="userInput">Type your message:</label>
+      <div>
+        <input id="userInput" type="text" placeholder="Ask me anything...">
+        <button onclick="send()">Send</button>
+      </div>
+    </div>
+
+    <div class="suggestions">
+      <strong>Try asking:</strong><br>
+      <button onclick="ask('What is Healthify?')">What is Healthify?</button>
+      <button onclick="ask('How to book appointment?')">How to book appointment?</button>
+      <button onclick="ask('What is BMI?')">What is BMI?</button>
+      <button onclick="ask('How to contact support?')">How to contact support?</button>
+      <button onclick="ask('Tell me about mental health')">Tell me about mental health</button>
+      <button onclick="ask('Can you match similar words like calory and calorie?')">Can you match similar words like calory and calorie?</button>
+      <button onclick="ask('Do you log unanswered questions for updates?')">Do you log unanswered questions for updates?</button>
+      <button onclick="ask('Can you show suggestions when you don’t know the answer?')">Can you show suggestions when you don’t know the answer?</button>
+    </div>
+  </div>
+
+  <script>
+    function send() {
+      var userText = document.getElementById("userInput").value.trim();
+      if (!userText) return;
+
+      // Add user message to chat
+      addMessage(userText, 'user');
+
+      // Clear input
+      document.getElementById("userInput").value = '';
+
+      // Fetch bot response
+      fetch("/get?msg=" + encodeURIComponent(userText))
+        .then(response => response.text())
+        .then(data => {
+          addMessage(data, 'bot');
+        });
+    }
+
+    function addMessage(text, sender) {
+      const chatbox = document.getElementById("chatbox");
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `chat-message ${sender}`;
+
+      if (sender === 'bot') {
+        const avatar = document.createElement("img");
+        avatar.src = "{{ url_for('static', filename='images/ria-avatar.png') }}";
+        avatar.alt = "Ria";
+        avatar.className = "avatar";
+        messageDiv.appendChild(avatar);
+
+        const textDiv = document.createElement("div");
+        textDiv.className = "message-text";
+        textDiv.innerText = text;
+        messageDiv.appendChild(textDiv);
+
+        const speakBtn = document.createElement("button");
+        speakBtn.className = "speak-btn";
+        speakBtn.innerText = "🔊 Listen";
+        speakBtn.onclick = () => speakResponse(text);
+        messageDiv.appendChild(speakBtn);
+      } else {
+        const textDiv = document.createElement("div");
+        textDiv.className = "message-text";
+        textDiv.innerText = text;
+        messageDiv.appendChild(textDiv);
+      }
+
+      chatbox.appendChild(messageDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function ask(question) {
+      document.getElementById("userInput").value = question;
+      send();
+    }
+
+    // Add event listener for Enter key on input
+    document.getElementById("userInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        send();
+      }
+    });
+
+    function speakResponse(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-IN"; // You can change to "hi-IN" for Hindi
+      speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
