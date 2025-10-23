@@ -1,3 +1,177 @@
 {
-  "ria": "Ria is your personal health coach..."
+  "user_profile": {
+    "name": "",
+    "location": "",
+    "language": "",
+    "preferred_tone": "formal | informal | humorous",
+    "emoji_usage": true,
+    "last_interaction": "",
+    "session_context": {}
+  },
+  "knowledge_base": {
+    "definitions": {
+      "quantum_computing": "Quantum computing uses quantum bits to perform complex calculations faster than classical computers.",
+      "blockchain": "A decentralized digital ledger that records transactions across many computers."
+    },
+    "history": {
+      "world_war_2": "Global war from 1939 to 1945 involving most of the world's nations.",
+      "indian_independence": "India gained independence from British rule on August 15, 1947."
+    },
+    "science": {
+      "gravity": "A force that attracts objects toward each other, especially the Earth.",
+      "photosynthesis": "Process by which green plants convert sunlight into energy."
+    },
+    "math": {
+      "formulas": {
+        "area_circle": "π × r²",
+        "quadratic_formula": "(-b ± √(b² - 4ac)) / 2a"
+      }
+    },
+    "geography": {
+      "continents": ["Asia", "Africa", "Europe", "North America", "South America", "Australia", "Antarctica"]
+    }
+  },
+  "daily_utilities": {
+    "weather": {
+      "current_conditions": "",
+      "forecast": ""
+    },
+    "time_zones": {
+      "IST": "+5:30",
+      "EST": "-5:00"
+    },
+    "currency_exchange": {
+      "USD_INR": 83.2,
+      "EUR_USD": 1.07
+    },
+    "unit_conversion": {
+      "cm_to_inches": "1 cm = 0.3937 inches",
+      "kg_to_pounds": "1 kg = 2.2046 pounds"
+    },
+    "calendar": {
+      "holidays": {
+        "India": ["Diwali", "Holi", "Independence Day"],
+        "USA": ["Thanksgiving", "Christmas", "Fourth of July"]
+      }
+    }
+  },
+  "productivity": {
+    "software_tips": {
+      "excel": ["Use VLOOKUP for data search", "CTRL + SHIFT + L for filters"],
+      "photoshop": ["Use layers for non-destructive editing", "CTRL + T to transform"]
+    },
+    "programming": {
+      "html": "<p>This is a paragraph.</p>",
+      "css": "body { background-color: #f0f0f0; }",
+      "javascript": "console.log('Hello World');"
+    },
+    "templates": {
+      "resume": "Name, Contact, Skills, Experience, Education",
+      "cover_letter": "Greeting, Introduction, Skills, Closing"
+    }
+  },
+  "entertainment": {
+    "movies": {
+      "popular": ["Inception", "The Matrix", "Interstellar"],
+      "genres": ["Action", "Comedy", "Drama", "Sci-Fi"]
+    },
+    "music": {
+      "genres": ["Pop", "Rock", "Classical", "Hip-Hop"],
+      "artists": ["Taylor Swift", "Ed Sheeran", "A.R. Rahman"]
+    },
+    "games": {
+      "types": ["Puzzle", "Shooter", "Strategy", "Adventure"]
+    },
+    "books": {
+      "categories": ["Fiction", "Non-fiction", "Biography", "Fantasy"]
+    }
+  },
+  "shopping": {
+    "recommendations": {
+      "gifts": {
+        "birthday": ["Smartwatch", "Books", "Perfume"],
+        "anniversary": ["Photo frame", "Couple mugs", "Spa voucher"]
+      },
+      "tech": ["Laptops", "Smartphones", "Bluetooth speakers"]
+    },
+    "comparisons": {
+      "smartphones": ["iPhone 15 vs Samsung S24", "Pixel 9 vs OnePlus 12"]
+    }
+  },
+  "conversation_logic": {
+    "synonyms": {
+      "tired": ["exhausted", "fatigued", "sleepy"],
+      "happy": ["joyful", "cheerful", "content"]
+    },
+    "intents": {
+      "greeting": ["hi", "hello", "hey"],
+      "farewell": ["bye", "see you", "goodnight"]
+    },
+    "multi_turn": {
+      "context_tracking": true,
+      "follow_up_suggestions": ["Would you like to know more?", "Should I explain further?"]
+    }
+  },
+  "fallback_and_escalation": {
+    "unknown_response": "I'm not sure I understand. Could you rephrase?",
+    "suggestions": ["Try asking about a topic like movies, weather, or programming."],
+    "escalation": {
+      "human_support": "You can contact support at support@example.com",
+      "feedback_form": "Would you like to leave feedback?"
+    }
+  },
+  "fun_zone": {
+    "jokes": [
+      "Why don’t scientists trust atoms? Because they make up everything!",
+      "Why did the web developer go broke? Because he used up all his cache."
+    ],
+    "riddles": [
+      "What has keys but can’t open locks? A piano.",
+      "I speak without a mouth and hear without ears. What am I? An echo."
+    ],
+    "quotes": {
+      "inspiration": "The best way to get started is to quit talking and begin doing. – Walt Disney",
+      "tech": "Programs must be written for people to read, and only incidentally for machines to execute. – Harold Abelson"
+    }
+  },
+  "travel_info": {
+    "popular_destinations": ["Paris", "Tokyo", "New York", "Dubai"],
+    "visa_requirements": {
+      "India_to_USA": "Tourist visa (B2) required. Apply via US embassy.",
+      "India_to_UAE": "E-visa available for Indian citizens."
+    },
+    "packing_tips": {
+      "summer": ["Sunscreen", "Light clothes", "Sunglasses"],
+      "winter": ["Thermals", "Jacket", "Gloves"]
+    },
+    "local_transport": {
+      "metro": "Fast and affordable in most cities",
+      "ride_sharing": ["Uber", "Ola", "Lyft"]
+    }
+  },
+  "career_guidance": {
+    "job_roles": {
+      "frontend_developer": "Builds the visual part of websites using HTML, CSS, JS.",
+      "data_analyst": "Interprets data to help businesses make decisions."
+    },
+    "interview_tips": [
+      "Research the company beforehand.",
+      "Prepare STAR-format answers for behavioral questions."
+    ],
+    "learning_resources": {
+      "web_dev": ["freeCodeCamp", "MDN Web Docs", "Frontend Mentor"],
+      "ai_ml": ["Coursera", "Kaggle", "Google AI"]
+    }
+  },
+  "finance_tools": {
+    "budget_tips": [
+      "Track your expenses weekly.",
+      "Use the 50/30/20 rule: Needs/Wants/Savings."
+    ],
+    "investment_terms": {
+      "mutual_fund": "A pool of money collected from investors to invest in securities.",
+      "stock": "A share in the ownership of a company."
+    },
+    "loan_types": ["Home loan", "Personal loan", "Education loan"]
+  }
 }

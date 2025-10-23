@@ -6,11 +6,10 @@ import difflib
 
 app = Flask(__name__)
 
-# Your custom Q&A data
-ria_data = {
+# Consolidated Chatbot Data
+chatbot_data = {
     "who is ria": "Ria is Healthify’s personal AI coach. She provides daily health insights, personalized diet plans, and proactive suggestions to help you stay on track.",
-    "who is your developer": "I’m Shivam Maurya’s creation, but I’m learning from you too." ,
-    "what does ria do": "Ria helps you improve your health by offering personalized diet plans, fitness tips, and smart tracking through tools like HealthifySnap.",
+    "who is your developer": "I’m Shivam Maurya’s creation, but I’m learning from you too.",
     "what does ria do": "Ria helps you improve your health by offering personalized diet plans, fitness tips, and smart tracking through tools like HealthifySnap.",
     "how does ria help with diet": "Ria analyzes your eating habits and recommends personalized diet plans based on your goals and preferences.",
     "how does ria help with fitness": "Ria suggests workouts tailored to your fitness level and tracks your activity to keep you motivated.",
@@ -29,12 +28,7 @@ ria_data = {
     "can ria help with stress": "Ria offers breathing exercises, mindfulness tips, and reminders to take breaks.",
     "how does ria learn": "Ria uses AI to learn from your interactions, health data, and feedback to improve her suggestions over time.",
     "can ria help with grocery planning": "Ria can suggest grocery lists based on your diet plan and health goals.",
-    "can ria help with cooking": "Ria recommends simple, healthy recipes based on your preferences and available ingredients."
-}
-
-
-health_data = {
-    "who is ria": "Ria is Healthify’s personal AI coach that provides daily health insights, personalized diet plans, and proactive suggestions.",
+    "can ria help with cooking": "Ria recommends simple, healthy recipes based on your preferences and available ingredients.",
     "what is healthify": "Healthify is a modular healthcare platform with AI-powered tools like symptom checkers, clinic locators, and health calculators.",
     "how does healthifysnap work": "HealthifySnap lets you track food by simply clicking a photo before you eat. It uses AI to estimate calories and log meals.",
     "what is a personalized diet plan": "Healthify offers personalized diet plans tailored to your goals, lifestyle, and preferences.",
@@ -85,10 +79,7 @@ health_data = {
     "what are some diet tips": "Visit the 'Health Tools' section for personalized diet tips based on your BMI and goals.",
     "how to check vaccination info": "You can check vaccination schedules and availability in the 'Clinics' section or ask our chatbot for guidance.",
     "what are covid-19 guidelines": "Healthify provides up-to-date COVID-19 guidelines, symptoms, and vaccination info in the 'Updates' section.",
-    "how to find available doctors": "Doctor availability is listed in the 'Clinics' section. You can filter by specialty and time slot."
-}
-
-daily_data = {
+    "how to find available doctors": "Doctor availability is listed in the 'Clinics' section. You can filter by specialty and time slot.",
     "what’s a healthy breakfast": "A healthy breakfast could include oats, fruits, eggs, or yogurt. Try to include protein and fiber.",
     "how to stay hydrated": "Drink at least 2–3 liters of water daily. Carry a bottle and sip regularly.",
     "how much sleep do i need": "Adults need 7–9 hours of sleep. Avoid screens before bed and keep a consistent sleep schedule.",
@@ -111,7 +102,7 @@ daily_data = {
     "breakfast": "A healthy breakfast could include oats, fruits, eggs, or yogurt. Try to include protein and fiber.",
     "exercise": "Regular exercise like walking, yoga, or cycling helps maintain physical and mental health.",
     "sleep": "Adults need 7–9 hours of sleep. Avoid screens before bed and keep a consistent sleep schedule.",
-    "hydration": "Drink at least 2–3 liters of water daily. Carry a bottle and sip regularly.",
+    "hydration": "Staying hydrated is key. Our health dashboard includes reminders and hydration tracking.",
     "stress": "Try deep breathing, meditation, or short walks to reduce stress.",
     "study tips": "Use the Pomodoro technique, take breaks, and avoid multitasking.",
     "productivity": "Start your day with a to-do list, prioritize tasks, and avoid distractions.",
@@ -127,9 +118,11 @@ daily_data = {
     "grocery": "Make a list before shopping. Include fruits, veggies, grains, and proteins.",
     "budget": "Track expenses, avoid impulse buys, and save a little each month.",
     "travel": "Pack light, carry essentials, and check local guidelines before traveling.",
-    "social": "Stay connected with friends and family. Healthify encourages community support."
+    "social": "Stay connected with friends and family. Healthify encourages community support.",
+    "can you match similar words like calory and calorie": "Yes, I can match similar words using fuzzy matching. For example, 'calory' matches 'diet'.",
+    "do you log unanswered questions for updates": "Yes, I log unanswered questions to a file to improve my responses over time.",
+    "can you show suggestions when you don’t know the answer": "When I don't know the answer, I log the question and provide a helpful response. You can try rephrasing or asking about health topics."
 }
-
 
 pairs = [
     [r"hi|hello|hey |hii", ["Hello! How can I help you today?"]],
@@ -145,7 +138,7 @@ pairs = [
 chatbot = Chat(pairs, reflections)
 
 
-all_data = {**health_data, **daily_data, **ria_data}
+# all_data is now replaced by chatbot_data
 
 synonyms = {
     "calory": "diet",
@@ -174,7 +167,7 @@ def detect_intent(user_input):
     return None
 
 def ria_response(answer):
-    return f"{answer} 😊 Remember, you’re doing great—Ria’s here to support you every step of the way!"
+    return f"{answer}  Remember, you’re doing great—Ria’s here to support you every step of the way!"
 
 
 def fuzzy_match(word, keywords, threshold=0.8):
@@ -190,53 +183,62 @@ def log_unanswered(question):
 def home():
     return render_template("index.html")
 
-def log_unanswered(question):
-    with open("unanswered.txt", "a") as file:
-        file.write(question + "\n")
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
 
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg').lower()
+
+    # First, try to get response from pairs using the Chat object
+    response = chatbot.respond(userText)
+    if response:
+        return (response)
+
     words = userText.split()
+    is_addressed_to_ria = "ria" in words
 
+    # Check direct match
     for word in words:
-        # Check direct match
-        if word in all_data:
-            return all_data[word]
+        if word in chatbot_data:
+            answer = chatbot_data[word]
+            return ria_response(answer) if is_addressed_to_ria else answer
 
-        # Check synonym match
+    # Check synonym match
+    for word in words:
         if word in synonyms:
             key = synonyms[word]
-            return all_data.get(key)
+            if key in chatbot_data:
+                answer = chatbot_data[key]
+                return ria_response(answer) if is_addressed_to_ria else answer
 
-        # Check fuzzy match
-        fuzzy_key = fuzzy_match(word, all_data.keys())
+    # Check fuzzy match
+    for word in words:
+        fuzzy_key = fuzzy_match(word, chatbot_data.keys())
         if fuzzy_key:
-            return all_data[fuzzy_key]
-        
-        # Detect intent
-        intent = detect_intent(userText)
-        if intent and intent in health_data:
-            return health_data[intent]
-        
-        # Keyword matching
-        for word in words:
-            for keyword, answer in health_data.items():
-                if word in keyword:
-                    return answer
+            answer = chatbot_data[fuzzy_key]
+            return ria_response(answer) if is_addressed_to_ria else answer
 
-        # Intent detection (if implemented)
-        intent = detect_intent(userText)
-        if intent and intent in health_data:
-            return health_data[intent]
+    # Detect intent
+    intent = detect_intent(userText)
+    if intent and intent in chatbot_data:
+        answer = chatbot_data[intent]
+        return ria_response(answer) if is_addressed_to_ria else answer
 
+    # Keyword matching in full text
+    for keyword, answer in chatbot_data.items():
+        if keyword in userText:
+            return ria_response(answer) if is_addressed_to_ria else answer
 
+    # Log unanswered question
+    log_unanswered(userText)
 
-    return (
-        "I'm still learning and improving. I don't have an answer for that yet, "
-        "but your question helps me grow smarter!"
-    )
+    return "I'm still learning and improving. I don't have an answer for that yet, but your question helps me grow smarter!"
 
 
 if __name__ == "__main__":
@@ -244,5 +246,4 @@ if __name__ == "__main__":
 
 def log_feedback(question, feedback):
     with open("feedback.txt", "a") as file:
-        file.write(f"{question} | {feedback}\n")
         file.write(f"{question} | {feedback}\n")
