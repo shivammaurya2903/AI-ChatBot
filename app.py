@@ -11,6 +11,7 @@ ria_data = {
     "who is ria": "Ria is Healthify’s personal AI coach. She provides daily health insights, personalized diet plans, and proactive suggestions to help you stay on track.",
     "who is your developer": "I’m Shivam Maurya’s creation, but I’m learning from you too." ,
     "what does ria do": "Ria helps you improve your health by offering personalized diet plans, fitness tips, and smart tracking through tools like HealthifySnap.",
+    "what does ria do": "Ria helps you improve your health by offering personalized diet plans, fitness tips, and smart tracking through tools like HealthifySnap.",
     "how does ria help with diet": "Ria analyzes your eating habits and recommends personalized diet plans based on your goals and preferences.",
     "how does ria help with fitness": "Ria suggests workouts tailored to your fitness level and tracks your activity to keep you motivated.",
     "how does ria track my meals": "Ria uses HealthifySnap to log meals from photos and estimate calories automatically.",
@@ -243,4 +244,5 @@ if __name__ == "__main__":
 
 def log_feedback(question, feedback):
     with open("feedback.txt", "a") as file:
+        file.write(f"{question} | {feedback}\n")
         file.write(f"{question} | {feedback}\n")
