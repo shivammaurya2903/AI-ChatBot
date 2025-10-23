@@ -2,6 +2,24 @@ from flask import Flask, render_template, request
 from nltk.chat.util import Chat, reflections
 
 import difflib
+import json
+
+
+# Load and flatten data.json
+def flatten_dict(d, prefix=''):
+    items = []
+    for k, v in d.items():
+        new_key = f"{prefix}.{k}" if prefix else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+with open('data.json', 'r') as f:
+    data_json = json.load(f)
+
+flattened_data = flatten_dict(data_json)
 
 
 app = Flask(__name__)
@@ -121,7 +139,12 @@ chatbot_data = {
     "social": "Stay connected with friends and family. Healthify encourages community support.",
     "can you match similar words like calory and calorie": "Yes, I can match similar words using fuzzy matching. For example, 'calory' matches 'diet'.",
     "do you log unanswered questions for updates": "Yes, I log unanswered questions to a file to improve my responses over time.",
-    "can you show suggestions when you don’t know the answer": "When I don't know the answer, I log the question and provide a helpful response. You can try rephrasing or asking about health topics."
+    "can you show suggestions when you don’t know the answer": "When I don't know the answer, I log the question and provide a helpful response. You can try rephrasing or asking about health topics.",
+    "help": "Yes, I can help with health tips, daily questions, and more. What do you need?",
+    "daily": "Daily questions can refer to routine inquiries, health tips, or events for the day.",
+    "tomorrow": "Tomorrow's date depends on today. Check your calendar for any special events or holidays.",
+    "date": "To find the date of tomorrow, add one day to today's date. Use your device's calendar.",
+    "special": "Special events or holidays can be found in the calendar. For example, check for festivals or personal reminders."
 }
 
 pairs = [
@@ -232,6 +255,24 @@ def get_bot_response():
 
     # Keyword matching in full text
     for keyword, answer in chatbot_data.items():
+        if keyword in userText:
+            return ria_response(answer) if is_addressed_to_ria else answer
+
+    # Check flattened data.json for matches
+    for word in words:
+        if word in flattened_data:
+            answer = flattened_data[word]
+            return ria_response(answer) if is_addressed_to_ria else answer
+
+    # Fuzzy match in flattened_data
+    for word in words:
+        fuzzy_key = fuzzy_match(word, flattened_data.keys())
+        if fuzzy_key:
+            answer = flattened_data[fuzzy_key]
+            return ria_response(answer) if is_addressed_to_ria else answer
+
+    # Keyword matching in full text for flattened_data
+    for keyword, answer in flattened_data.items():
         if keyword in userText:
             return ria_response(answer) if is_addressed_to_ria else answer
 
