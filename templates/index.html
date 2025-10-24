@@ -3,26 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatbot</title>
+  <title>Chat with RIA</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .voice-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .voice-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .voice-btn.listening {
+      background: #dc3545;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <img src="{{ url_for('static', filename='images/ria-avatar.png') }}" alt="Ria Avatar" class="top-avatar">
-    <h1>Chat with RIA AI-Bot</h1>
+    <img src="/static/images/ria-avatar.png" alt="Ria Avatar" class="top-avatar">
+    <h1>Chat with RIA</h1>
     <div id="chatbox"></div>
     <div class="input-container">
-      <label for="userInput">Type your message:</label>
-      <div>
+      <label for="userInput">Type your message or use voice:</label>
+      <div class="voice-input">
         <input id="userInput" type="text" placeholder="Ask me anything...">
+        <button id="voiceBtn" class="voice-btn" onclick="toggleVoice()">🎤</button>
         <button onclick="send()">Send</button>
       </div>
     </div>
 
     <div class="suggestions">
       <strong>Try asking:</strong><br>
-      <button onclick="ask('Who is your developer?')">Who is your developer?</button>
       <button onclick="ask('What is Healthify?')">What is Healthify?</button>
       <button onclick="ask('How to book appointment?')">How to book appointment?</button>
       <button onclick="ask('What is BMI?')">What is BMI?</button>
@@ -31,10 +66,16 @@
       <button onclick="ask('Can you match similar words like calory and calorie?')">Can you match similar words like calory and calorie?</button>
       <button onclick="ask('Do you log unanswered questions for updates?')">Do you log unanswered questions for updates?</button>
       <button onclick="ask('Can you show suggestions when you don’t know the answer?')">Can you show suggestions when you don’t know the answer?</button>
+      <button onclick="ask('Who is your developer?')">Who is your developer?</button>
+      <button onclick="ask('What’s a healthy breakfast?')">What’s a healthy breakfast?</button>
+      <button onclick="ask('How to stay motivated?')">How to stay motivated?</button>
     </div>
   </div>
 
   <script>
+    let recognition;
+    let isListening = false;
+
     function send() {
       var userText = document.getElementById("userInput").value.trim();
       if (!userText) return;
@@ -45,8 +86,8 @@
       // Clear input
       document.getElementById("userInput").value = '';
 
-      // Fetch bot response
-      fetch("/get?msg=" + encodeURIComponent(userText))
+      // Fetch bot response (try /llm first, fallback to /get)
+      fetch("/llm?msg=" + encodeURIComponent(userText))
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -57,8 +98,12 @@
           addMessage(data, 'bot');
         })
         .catch(error => {
-          console.error('Error fetching bot response:', error);
-          addMessage('Sorry, there was an error processing your request. Please try again.', 'bot');
+          console.error('Error fetching LLM response:', error);
+          // Fallback to /get
+          fetch("/get?msg=" + encodeURIComponent(userText))
+            .then(response => response.text())
+            .then(data => addMessage(data, 'bot'))
+            .catch(err => addMessage('Sorry, there was an error processing your request. Please try again.', 'bot'));
         });
     }
 
@@ -69,7 +114,7 @@
 
       if (sender === 'bot') {
         const avatar = document.createElement("img");
-        avatar.src = "{{ url_for('static', filename='images/ria-avatar.png') }}";
+        avatar.src = "/static/images/ria-avatar.png";
         avatar.alt = "Ria";
         avatar.className = "avatar";
         messageDiv.appendChild(avatar);
@@ -111,6 +156,59 @@
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-IN"; // You can change to "hi-IN" for Hindi
       speechSynthesis.speak(utterance);
+    }
+
+    function toggleVoice() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Speech recognition not supported in this browser.');
+        return;
+      }
+
+      if (isListening) {
+        stopListening();
+      } else {
+        startListening();
+      }
+    }
+
+    function startListening() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = function() {
+        isListening = true;
+        document.getElementById("voiceBtn").classList.add("listening");
+        document.getElementById("voiceBtn").innerText = "🎙️";
+      };
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("userInput").value = transcript;
+        send();
+      };
+
+      recognition.onend = function() {
+        stopListening();
+      };
+
+      recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        stopListening();
+      };
+
+      recognition.start();
+    }
+
+    function stopListening() {
+      if (recognition) {
+        recognition.stop();
+      }
+      isListening = false;
+      document.getElementById("voiceBtn").classList.remove("listening");
+      document.getElementById("voiceBtn").innerText = "🎤";
     }
   </script>
 </body>
