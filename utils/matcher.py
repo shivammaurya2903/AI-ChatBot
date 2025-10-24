@@ -125,9 +125,10 @@ def match_response(userText):
     if intent and intent in unified_data:
         return unified_data[intent]
 
-    # Keyword matching in full text
-    for keyword, answer in unified_data.items():
+    # Keyword matching in full text, prioritize longer keywords
+    sorted_keywords = sorted(unified_data.keys(), key=len, reverse=True)
+    for keyword in sorted_keywords:
         if keyword in userText:
-            return answer
+            return unified_data[keyword]
 
     return None

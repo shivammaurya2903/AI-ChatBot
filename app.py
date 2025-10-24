@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from nltk.chat.util import Chat, reflections
-from utils.matcher import unified_data, synonyms, intents
+from utils.matcher import unified_data, synonyms, intents, flattened_chatbot_data, general_data, daily_life_data, healthify_data
 
 import difflib
 import json
@@ -20,6 +20,9 @@ pairs = [
 ]
 
 chatbot = Chat(pairs, reflections)
+
+# Data sources in priority order: generalchatbot, general, daily life, healthify
+data_sources = [flattened_chatbot_data, general_data, daily_life_data, healthify_data]
 
 
 def detect_intent(user_input):
@@ -83,37 +86,45 @@ def get_bot_response():
     words = userText.split()
     is_addressed_to_ria = "ria" in words
 
-    # Check direct match
+    # Check direct match with priority
     for word in words:
-        if word in unified_data:
-            answer = unified_data[word]
-            return ria_response(answer) if is_addressed_to_ria else answer
+        for data in data_sources:
+            if word in data:
+                answer = data[word]
+                return ria_response(answer) if is_addressed_to_ria else answer
 
-    # Check synonym match
+    # Check synonym match with priority
     for word in words:
         if word in synonyms:
             key = synonyms[word]
-            if key in unified_data:
-                answer = unified_data[key]
+            for data in data_sources:
+                if key in data:
+                    answer = data[key]
+                    return ria_response(answer) if is_addressed_to_ria else answer
+
+    # Check fuzzy match with priority
+    for word in words:
+        for data in data_sources:
+            fuzzy_key = fuzzy_match(word, data.keys())
+            if fuzzy_key:
+                answer = data[fuzzy_key]
                 return ria_response(answer) if is_addressed_to_ria else answer
 
-    # Check fuzzy match
-    for word in words:
-        fuzzy_key = fuzzy_match(word, unified_data.keys())
-        if fuzzy_key:
-            answer = unified_data[fuzzy_key]
-            return ria_response(answer) if is_addressed_to_ria else answer
-
-    # Detect intent
+    # Detect intent with priority
     intent = detect_intent(userText)
-    if intent and intent in unified_data:
-        answer = unified_data[intent]
-        return ria_response(answer) if is_addressed_to_ria else answer
+    if intent:
+        for data in data_sources:
+            if intent in data:
+                answer = data[intent]
+                return ria_response(answer) if is_addressed_to_ria else answer
 
-    # Keyword matching in full text
-    for keyword, answer in unified_data.items():
-        if keyword in userText:
-            return ria_response(answer) if is_addressed_to_ria else answer
+    # Keyword matching in full text with priority
+    for data in data_sources:
+        sorted_keywords = sorted(data.keys(), key=len, reverse=True)
+        for keyword in sorted_keywords:
+            if keyword in userText:
+                answer = data[keyword]
+                return ria_response(answer) if is_addressed_to_ria else answer
 
     # Log unanswered question
     log_unanswered(userText)
@@ -125,7 +136,6 @@ def get_bot_response():
 
     suggestions = [
         "Try asking about health tips, diet plans, or fitness advice.",
-        "You can ask questions like 'What is BMI?' or 'How to stay hydrated?'.",
         "For general knowledge, try topics like science, history, or geography.",
         "If it's about Healthify, ask about Ria, appointments, or tools."
     ]
@@ -137,6 +147,4 @@ def get_bot_response():
 if __name__ == "__main__":
     app.run(debug=True)
 
-def log_feedback(question, feedback):
-    with open("feedback.txt", "a") as file:
-        file.write(f"{question} | {feedback}\n")
+
