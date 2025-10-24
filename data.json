@@ -8,6 +8,13 @@
     "last_interaction": "",
     "session_context": {}
   },
+  "bot_profile": {
+    "name": "Ria",
+    "purpose": "I am Ria, an AI chatbot designed to assist with daily life queries, provide information on various topics, and engage in helpful conversations.",
+    "capabilities": ["Answer questions", "Provide recommendations", "Offer advice on productivity, health, travel, and more"],
+    "personality": "Friendly, helpful, and knowledgeable",
+    "creator": "Built by Shivam Maurya to make interactions easier and more informative."
+  },
   "knowledge_base": {
     "definitions": {
       "quantum_computing": "Quantum computing uses quantum bits to perform complex calculations faster than classical computers.",
@@ -104,8 +111,8 @@
       "happy": ["joyful", "cheerful", "content"]
     },
     "intents": {
-      "greeting": ["hi", "hello", "hey"],
-      "farewell": ["bye", "see you", "goodnight"]
+      "greeting": ["hi", "hello", "hey", "good morning", "good afternoon", "good evening", "good night", "hey there", "howdy", "greetings", "what's up", "sup"],
+      "farewell": ["bye", "see you", "goodnight", "goodbye", "take care", "see you later", "farewell"]
     },
     "multi_turn": {
       "context_tracking": true,
