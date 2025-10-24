@@ -8,8 +8,28 @@ with open("data/healthify_data.json") as f:
 with open("data/daily_life_data.json") as f:
     daily_life_data = json.load(f)
 
+with open("data/general_data.json") as f:
+    general_data = json.load(f)
+
+with open("data.json") as f:
+    chatbot_data = json.load(f)
+
+def flatten_dict(d, prefix=''):
+    items = []
+    for k, v in d.items():
+        new_key = f"{prefix}.{k}" if prefix else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key).items())
+        elif isinstance(v, list):
+            items.append((new_key, ', '.join(map(str, v))))
+        else:
+            items.append((new_key, str(v)))
+    return dict(items)
+
+flattened_chatbot_data = flatten_dict(chatbot_data)
+
 # Unified data dictionary
-unified_data = {**healthify_data, **daily_life_data}
+unified_data = {**healthify_data, **daily_life_data, **general_data, **flattened_chatbot_data}
 
 with open("data/synonyms.json") as f:
     synonyms = json.load(f)
