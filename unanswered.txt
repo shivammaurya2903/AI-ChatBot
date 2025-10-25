@@ -23,3 +23,5 @@ describe yourself
 about youself
 can you show suggestions when you don’t know the answer?
 can you show suggestions when you don’t know the answer?
+can you show suggestions when you don’t know the answer?
+tell me about your self

@@ -9,7 +9,7 @@ import requests
 app = Flask(__name__)
 
 pairs = [
-    [r"hi|hello|hey |hii", ["Hello! How can I help you today?"]],
+    [r"hi|hello|hey|hii", ["Hello! How can I help you today?"]],
     [r"how are you?", ["I'm doing well, thank you!"]],
     [r"what is your name?", ["I'm Ria, your Healthify assistant."]],
     [r"who are you?", ["I'm Ria, your Healthify assistant, here to help with health and daily tips."]],
